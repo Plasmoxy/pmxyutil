@@ -1,0 +1,6 @@
+#!/bin/bash
+# Simple CPU Temperature output by Plasmoxy
+temp=$(cat /sys/class/thermal/thermal_zone0/temp)
+temp=$(awk "BEGIN {print $temp/1000} "))
+echo -e "CPU Temperature : $temp"
+

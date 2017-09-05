@@ -1,0 +1,131 @@
+#!/bin/bash
+
+# yeah this is extremely bad written code, ill improve it when i wont be that lazy xD
+# UPDATE everything went into frikkin functions niice
+# also theres sudo everywhere you should feel AAANNGGEERRYY
+# also don't ask about the commands xD
+# (c) 2069 Plasmoxy, get r3kt u hav no rghights
+
+version=0.7
+
+wpasup_prefix="ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1"
+supaddr=/etc/wpa_supplicant/wpa_supplicant.conf
+
+ssid=""
+psk=""
+
+infobox="
+
+ --- Radiotroll direct wpa_supplicant and networking config tool ---
+ --- by Plasmoxy ( Sebastian Petrik ) ---
+ --- v${version} ---
+
+usage: radiotroll command networkstate ...
+networkstate :
+	o - for open networks
+	<anything else> - for normal networks
+commands : [ Extremely creative 11/10 ]
+
+	kiss - create wpa supplicant file with given wifi password and ssid
+	---- Kisses the supplicant, but its nothing serious.
+
+	love - same as kiss but also resets networking
+	---- There is actually something going on
+
+	fury - resets networking
+	---- AANNGGEERRYY
+
+	info - prints content of wpa_supplicant
+
+Also theres a free ifconfig on end of each command just for you ;)
+
+xD
+
+"
+
+function permReadError {
+	echo " ERROR : you must be root to read supplicant ( dude no hakermen here xD )"
+	exit 1
+}
+
+function trigifconfig {
+	echo -e "\n--- ifconfig ---"
+	ifconfig
+	echo -e "\nDONE"
+}
+
+function updateSupp { 
+	wpasup_fulldat="${wpasup_prefix}\nnetwork={\nssid=\"${ssid}\"\npsk=\"${psk}\"\n}"
+}
+
+function updateSuppOpen {
+	wpasup_fulldat="${wpasup_prefix}\nnetwork={\nssid=\"${ssid}\"\nkey_mgmt=NONE\n}"
+}
+
+function writeSupp {
+	echo -e "\nWriting to wpa_supplicant ...\n--- NEW SUPPLICANT ---\n"
+	sudo echo -e ${wpasup_fulldat} | sudo tee ${supaddr} || exit 1
+	echo -e "\nDONE"
+}
+
+function resetNet {
+	echo -e "\nRestarting networking ..."
+	sudo service networking restart || exit 1
+	echo -e "\nDONE"
+}
+
+function readCredentials {
+	echo -e "\nSSID : "
+	read ssid
+	echo -e "Password (psk) : "
+	read psk
+	echo -e "\n"
+}
+
+function supplicant {
+	if [ "$1" = "o" ]; then
+		echo -e "\n Open network SSID :"
+		read ssid
+		echo -e "\n"
+		updateSuppOpen
+	else
+		readCredentials
+		updateSupp
+	fi
+	writeSupp
+}
+
+function printSupplicant {
+	echo -e "--- CURRENT SUPPLICANT ---"
+	sudo cat ${supaddr} || permReadError
+}
+
+# argument scan
+case "$1" in
+	"kiss")
+		supplicant $2
+		trigifconfig
+		;;
+	"love")
+		supplicant $2
+		resetNet
+		trigifconfig
+		;;
+	"fury")
+		resetNet
+		trigifconfig
+		;;
+	"info")
+		printSupplicant
+		trigifconfig
+		;;
+	"")
+		echo -e "${infobox}"
+		;;
+	*)
+		echo "Unknown argument. Run without arguments for help."
+		;;
+esac
+
+#eof
+
