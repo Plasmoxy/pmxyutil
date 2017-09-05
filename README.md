@@ -7,7 +7,7 @@ In this repo you can find all of my Linux utility programs that I made and have 
 * radiotroll
     * a tool to easily connect to secured/open wifi through terminal
     * uses wpa_supplicant.conf
-    * working on /etc/network/interfaces functionality too
+    * I'm working on /etc/network/interfaces functionality
 
 <h2>SIMPLE UTILITIES THAT MAY NOT BE USEFUL</h2>
 
